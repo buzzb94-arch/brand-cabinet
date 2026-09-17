@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { auth } from '../api/client';
+import { useAuth } from '../AuthContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,8 +16,7 @@ export default function Login() {
 
     try {
       const response = await auth.login(email, password);
-      localStorage.setItem('token', response.access_token);
-      navigate('/dashboard');
+      login(response.access_token);
     } catch (err: any) {
       setError(err.message || 'Неверный email или пароль');
     } finally {

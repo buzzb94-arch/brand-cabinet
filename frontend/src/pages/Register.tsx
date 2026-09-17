@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../AuthContext';
 import { auth } from '../api/client';
 
 export default function Register() {
@@ -12,7 +12,7 @@ export default function Register() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const { login } = useAuth();
   const [searchParams] = useSearchParams();
   const referralCode = searchParams.get('referral_code');
 
@@ -33,7 +33,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const response = await auth.register({
+      const response = await auth.register(email, password, fullName);
         name: formData.name,
         email: formData.email,
         phone: formData.phone || undefined,
@@ -41,8 +41,7 @@ export default function Register() {
         referral_code: referralCode || undefined,
       });
 
-      localStorage.setItem('token', response.access_token);
-      navigate('/dashboard');
+      login(response.access_token);
     } catch (err: any) {
       setError(err.message || 'Ошибка регистрации');
     } finally {
